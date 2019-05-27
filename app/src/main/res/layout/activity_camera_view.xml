@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <example.chen.com.detecthandwriting.view.CameraSurfaceView
+        android:id="@+id/cameraSurfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <example.chen.com.detecthandwriting.view.CameraTopRectView
+        android:id="@+id/rectOnCamera"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="60dp"
+            android:id="@+id/takePic"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:background="@color/colorAccent"
+            android:text="点击拍照"
+            android:textColor="@color/colorWhite" />
+    </RelativeLayout>
+</FrameLayout>
