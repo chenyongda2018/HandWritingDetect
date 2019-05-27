@@ -1,1 +1,2 @@
 include ':app', ':smartcropperlib'
+include ':openCVLibrary300'
