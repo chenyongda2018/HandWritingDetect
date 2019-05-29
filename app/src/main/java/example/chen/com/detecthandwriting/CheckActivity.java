@@ -29,6 +29,9 @@ import me.pqpo.smartcropperlib.view.CropImageView;
 
 import static example.chen.com.detecthandwriting.util.ImageUtil.convertGray;
 
+
+
+
 public class CheckActivity extends AppCompatActivity {
     public static final String TAG = "CheckActivity";
     private String mImageFilePath;
