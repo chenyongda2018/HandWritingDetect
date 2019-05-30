@@ -21,7 +21,7 @@ public class SdCardUtils {
     public static void createAppDir() {
         if (SdCardUtils.checkSdCard()) {
             SdCardUtils.createFileDir(SdCardUtils.FILE_DIR);
-            SdCardUtils.createFileDir(SdCardUtils.FILE_DIR+ERROR_LETTER);
+            SdCardUtils.createFileDir(SdCardUtils.FILE_DIR + ERROR_LETTER);
         }
     }
 
@@ -72,22 +72,24 @@ public class SdCardUtils {
             }
         }
     }
+
     /**
      * 把Bitmap保存到本地
+     *
      * @param bitmap
      * @return
      */
-    public static String saveBitmapToSD(Bitmap bitmap, String result,int position) {
+    public static String saveBitmapToSD(Bitmap bitmap, String result, int position) {
         UUID id = UUID.randomUUID();
         String fileName = "";
-        if(result == null || result.equals("")) {
-            fileName = "unknown_"+id.toString();
+        if (result == null || result.equals("")) {
+            fileName = "unknown_" + id.toString();
         } else {
-            fileName = "letter_"+result+"_"+id.toString();
+            fileName = "letter_" + result + "_" + id.toString();
         }
-        File file = new File(Environment.getExternalStorageDirectory() +letterDirs[position],
-                fileName+".jpg"); //放在每个字母对应的文件夹里
-        return savePhotoToSD(bitmap,null , file.getAbsolutePath());
+        File file = new File(Environment.getExternalStorageDirectory() + letterDirs[position],
+                fileName + ".jpg"); //放在每个字母对应的文件夹里
+        return savePhotoToSD(bitmap, null, file.getAbsolutePath());
     }
 
     /**

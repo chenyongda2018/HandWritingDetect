@@ -1,12 +1,12 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-8:12
-INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-8:12
-INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-8:12
-INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-8:12
-INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-8:12
-INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-8:12
-INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-8:12
+ADDED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-6:12
+INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-6:12
+INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-6:12
+INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-6:12
+INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-6:12
+INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-6:12
+INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:2:1-6:12
 	package
 		ADDED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml:3:7-27
 		INJECTED from D:\Workspaces\Androidworkspace\DetectHandwriting\openCVLibrary300\src\main\AndroidManifest.xml

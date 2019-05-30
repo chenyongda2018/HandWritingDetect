@@ -27,7 +27,7 @@ import example.chen.com.detecthandwriting.util.ImageUtil;
 import example.chen.com.detecthandwriting.util.SdCardUtils;
 import me.pqpo.smartcropperlib.view.CropImageView;
 
-import static example.chen.com.detecthandwriting.util.ImageUtil.convertGray;
+import static example.chen.com.detecthandwriting.util.ImageUtil.convert2Gray;
 
 public class CheckActivity extends AppCompatActivity {
     public static final String TAG = "CheckActivity";
@@ -60,10 +60,18 @@ public class CheckActivity extends AppCompatActivity {
     private static final long[] input_shape = {1, 784};
     private static final String output_node = "dense_3/Softmax";
 
+
+    static {
+        System.loadLibrary("hello");
+    }
+
+    public native String sayHello();
+    public native int[] gray(int[] buf,int w, int h);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
+        Log.d(TAG, "onCreate---"+sayHello());
         setContentView(R.layout.activity_check);
         mInferenceInterface = new TensorFlowInferenceInterface(getApplication().getAssets(), "emnist.pb");
 
@@ -125,6 +133,17 @@ public class CheckActivity extends AppCompatActivity {
                 mProgressDialog.setCancelable(false);
                 mProgressDialog.show();
                 new Thread(runnable).start();
+//                int w = mCropBitmap.getWidth();
+//                int h = mCropBitmap.getHeight();
+//                int pixels[] = new int[w * h];
+//                int count = 0;
+//                for (int i = 0; i < h; i++) {
+//                    for (int j = 0; j < w; j++) {
+//                        pixels[count++] = mCropBitmap.getPixel(j,i ) ;
+//                    }
+//                }
+//                int p[] = gray(pixels,w ,h );
+//                mJiuGongGePv.setImageBitmap(Bitmap.createBitmap(p,w ,h , Bitmap.Config.ARGB_8888));
             }
         });
 
@@ -154,17 +173,18 @@ public class CheckActivity extends AppCompatActivity {
 
 
     private void detectBitmaps() {
+
         mBitmaps = new Bitmap[mCellHeight][mCellWidth];
         for (int y = 0; y < 3; y++) {
             for (int x = 0; x < 3; x++) {
                 mItemCount++;
                 int xx = x * mCellWidth;
                 int yy = y * mCellHeight;
-                mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 7, yy + mCellHeight / 7,
-                        (mCellWidth / 7) * 5, (mCellHeight / 7) * 5);
+                mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 8, yy + mCellHeight / 8,
+                        (mCellWidth / 8) * 6, (mCellHeight / 8) * 7);
                 String result = "";
                 Bitmap bitmap = mBitmaps[x][y];
-                result = detectText(convertGray(bitmap)).toLowerCase().trim();
+                result = detectText(convert2Gray(bitmap)).toLowerCase().trim();
                 if (!mLetterSwitch.toLowerCase().equals(result)) { //如果识别错误
                     SdCardUtils.saveBitmapToSD(ImageUtil.getBinaryzationBitmap(bitmap), result, mLetterPostion);
                     drawErrorOnBitmap(mCropBitmap, xx, yy, mCellWidth, mCellHeight);
@@ -196,4 +216,8 @@ public class CheckActivity extends AppCompatActivity {
         canvas.drawLine(left + width, top, left, top + height, mPaint);
         canvas.save();
     }
+
+
+
+
 }

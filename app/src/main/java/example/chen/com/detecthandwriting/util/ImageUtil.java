@@ -340,7 +340,7 @@ public class ImageUtil {
      * @param bitmap3
      * @return
      */
-    public static Bitmap convertGray(Bitmap bitmap3) {
+    public static Bitmap convert2Gray(Bitmap bitmap3) {
         ColorMatrix colorMatrix = new ColorMatrix();
         colorMatrix.setSaturation(0);
         ColorMatrixColorFilter filter = new ColorMatrixColorFilter(colorMatrix);
@@ -435,6 +435,7 @@ public class ImageUtil {
      * @return 二值化处理后的图片
      */
     public static Bitmap getBinaryzationBitmap(Bitmap bm) {
+
         Bitmap bitmap = null;
         // 获取图片的宽和高
         int width = bm.getWidth();
@@ -465,7 +466,7 @@ public class ImageUtil {
         for (int i = 1; i <= 225; i++) {
             if (max < pixels[i]) {
                 max = pixels[i];
-                threshold = i-10;
+                threshold = i-20;
             }
         }
         System.out.println(threshold);

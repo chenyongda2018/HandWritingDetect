@@ -8,6 +8,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+
 import java.util.List;
 
 import example.chen.com.detecthandwriting.util.SdCardUtils;
@@ -16,6 +20,11 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class MainActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
     public static final int RC_CAMERA_AND_RECORD_AUDIO = 111;
 
+    private static final String TAG = "MainActivity";
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +32,17 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         requestPermissions();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!OpenCVLoader.initDebug()){
+            Log.d(TAG, "OpenCV not loaded");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_10, this, mLoaderCallback);
+        } else {
+            Log.d(TAG, "OpenCV loaded");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -35,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         //判断有没有权限
         if (EasyPermissions.hasPermissions(this, perms)) {
             openCamera();
+
         } else {
             EasyPermissions.requestPermissions(this, "写上你需要用权限的理由, 是给用户看的", RC_CAMERA_AND_RECORD_AUDIO, perms);
         }
@@ -71,4 +92,21 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         Intent intent = new Intent(this, MCameraActivity.class);
         startActivity(intent);
     }
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS:
+                    Log.i(TAG, "OpenCV loaded successfully");
+
+                    break;
+                default:
+                    super.onManagerConnected(status);
+                    break;
+            }
+        }
+    };
+
+
 }

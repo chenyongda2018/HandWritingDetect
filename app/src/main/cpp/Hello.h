@@ -1,0 +1,8 @@
+//
+// Created by Chen on 2019/5/28.
+//
+
+#ifndef DETECTHANDWRITING_HELLO_H
+#define DETECTHANDWRITING_HELLO_H
+
+#endif //DETECTHANDWRITING_HELLO_H
