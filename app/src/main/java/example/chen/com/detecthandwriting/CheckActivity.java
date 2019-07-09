@@ -20,6 +20,9 @@ import android.widget.Toast;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
+import org.opencv.android.Utils;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
 
 import example.chen.com.detecthandwriting.util.DetectUtil;
@@ -51,7 +54,7 @@ public class CheckActivity extends AppCompatActivity {
     public float mRightCount = 0;
 
     private String mLetterSwitch; //要识别的字母
-    private int mLetterPostion;
+    private int mLetterPosition;
     private Bitmap[][] mBitmaps;
     private String[] mLetters;
 
@@ -66,12 +69,13 @@ public class CheckActivity extends AppCompatActivity {
     }
 
     public native String sayHello();
-    public native int[] gray(int[] buf,int w, int h);
+
+    public native int[] gray(int[] buf, int w, int h);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate---"+sayHello());
+        Log.d(TAG, "onCreate---" + sayHello());
         setContentView(R.layout.activity_check);
         mInferenceInterface = new TensorFlowInferenceInterface(getApplication().getAssets(), "emnist.pb");
 
@@ -106,7 +110,7 @@ public class CheckActivity extends AppCompatActivity {
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                mLetterPostion = position;
+                mLetterPosition = position;
                 mLetterSwitch = mLetters[position]; //规定当前识别的哪种字母
             }
 
@@ -129,21 +133,17 @@ public class CheckActivity extends AppCompatActivity {
         mDetectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                Mat dest = new Mat();
+//                Utils.bitmapToMat(convert2Gray(mCropBitmap), dest); // 灰度化的bitmap 转换成 mat
+////                ImageUtil.binaryMatZation(dest); //将Mat二值化
+//                Utils.matToBitmap(dest,mCropBitmap );
+//                Bitmap src = convert2Gray(mCropBitmap);
+//                src = ImageUtil.getBinaryzationBitmap(src);
+//                mJiuGongGePv.setImageBitmap(src);
                 mProgressDialog.setMessage("正在检测...");
                 mProgressDialog.setCancelable(false);
                 mProgressDialog.show();
                 new Thread(runnable).start();
-//                int w = mCropBitmap.getWidth();
-//                int h = mCropBitmap.getHeight();
-//                int pixels[] = new int[w * h];
-//                int count = 0;
-//                for (int i = 0; i < h; i++) {
-//                    for (int j = 0; j < w; j++) {
-//                        pixels[count++] = mCropBitmap.getPixel(j,i ) ;
-//                    }
-//                }
-//                int p[] = gray(pixels,w ,h );
-//                mJiuGongGePv.setImageBitmap(Bitmap.createBitmap(p,w ,h , Bitmap.Config.ARGB_8888));
             }
         });
 
@@ -158,10 +158,15 @@ public class CheckActivity extends AppCompatActivity {
         @Override
         public void run() {
             detectBitmaps(); //识别bitmap
+//            Bitmap src = convert2Gray(mCropBitmap);
+//            src = ImageUtil.getBinaryzationBitmap(src);
+//
+//            Bitmap finalSrc = src;
             mDetectHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     mJiuGongGePv.setImageBitmap(mCropBitmap);
+//                    mJiuGongGePv.setImageBitmap(finalSrc);
                     mScoreTv.setText("一共:" + mItemCount + "个" + "\n" + "正确率" + mRightCount / mItemCount);
                     mProgressDialog.dismiss();
                     mItemCount = 0;
@@ -186,7 +191,7 @@ public class CheckActivity extends AppCompatActivity {
                 Bitmap bitmap = mBitmaps[x][y];
                 result = detectText(convert2Gray(bitmap)).toLowerCase().trim();
                 if (!mLetterSwitch.toLowerCase().equals(result)) { //如果识别错误
-                    SdCardUtils.saveBitmapToSD(ImageUtil.getBinaryzationBitmap(bitmap), result, mLetterPostion);
+                    SdCardUtils.saveBitmapToSD(ImageUtil.getBinaryzationBitmap(bitmap), result, mLetterPosition);
                     drawErrorOnBitmap(mCropBitmap, xx, yy, mCellWidth, mCellHeight);
                 } else if (mLetterSwitch.toLowerCase().equals(result)) {
                     mRightCount++;
@@ -216,8 +221,6 @@ public class CheckActivity extends AppCompatActivity {
         canvas.drawLine(left + width, top, left, top + height, mPaint);
         canvas.save();
     }
-
-
 
 
 }
