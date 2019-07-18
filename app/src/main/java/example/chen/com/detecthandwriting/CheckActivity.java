@@ -14,23 +14,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.chrisbanes.photoview.PhotoView;
 
-import org.opencv.android.Utils;
-import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.tensorflow.contrib.android.TensorFlowInferenceInterface;
+
+import java.util.LinkedList;
 
 import example.chen.com.detecthandwriting.util.DetectUtil;
 import example.chen.com.detecthandwriting.util.ImageUtil;
 import example.chen.com.detecthandwriting.util.SdCardUtils;
+import example.chen.com.detecthandwriting.util.Tf;
 import me.pqpo.smartcropperlib.view.CropImageView;
-
-import static example.chen.com.detecthandwriting.util.ImageUtil.convert2Gray;
 
 public class CheckActivity extends AppCompatActivity {
     public static final String TAG = "CheckActivity";
@@ -58,33 +54,25 @@ public class CheckActivity extends AppCompatActivity {
     private Bitmap[][] mBitmaps;
     private String[] mLetters;
 
-    TensorFlowInferenceInterface mInferenceInterface;
+
     private static final String input_node = "reshape_1_input";
     private static final long[] input_shape = {1, 784};
     private static final String output_node = "dense_3/Softmax";
-
-
-    static {
-        System.loadLibrary("hello");
-    }
-
-    public native String sayHello();
-
-    public native int[] gray(int[] buf, int w, int h);
+    private static int scanTimes = 0;
+    static int[] mErrorList = new int[126];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate---" + sayHello());
         setContentView(R.layout.activity_check);
-        mInferenceInterface = new TensorFlowInferenceInterface(getApplication().getAssets(), "emnist.pb");
+        Tf.init(this);
+
 
         //创建文件夹
         SdCardUtils.createAppDir();
         mLetters = getResources().getStringArray(R.array.letters);
         SdCardUtils.createLetterDir(mLetters);
-
-
     }
 
     @Override
@@ -108,6 +96,7 @@ public class CheckActivity extends AppCompatActivity {
         mJiuGongGePv = findViewById(R.id.puzzle_jiu_gong_ge_view);
         mSpinner = findViewById(R.id.which_detect_spinner);
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 mLetterPosition = position;
@@ -135,7 +124,7 @@ public class CheckActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                Mat dest = new Mat();
 //                Utils.bitmapToMat(convert2Gray(mCropBitmap), dest); // 灰度化的bitmap 转换成 mat
-////                ImageUtil.binaryMatZation(dest); //将Mat二值化
+//                ImageUtil.binaryMatZation(dest); //将Mat二值化
 //                Utils.matToBitmap(dest,mCropBitmap );
 //                Bitmap src = convert2Gray(mCropBitmap);
 //                src = ImageUtil.getBinaryzationBitmap(src);
@@ -146,8 +135,6 @@ public class CheckActivity extends AppCompatActivity {
                 new Thread(runnable).start();
             }
         });
-
-
     }
 
 
@@ -160,7 +147,6 @@ public class CheckActivity extends AppCompatActivity {
             detectBitmaps(); //识别bitmap
 //            Bitmap src = convert2Gray(mCropBitmap);
 //            src = ImageUtil.getBinaryzationBitmap(src);
-//
 //            Bitmap finalSrc = src;
             mDetectHandler.post(new Runnable() {
                 @Override
@@ -176,7 +162,9 @@ public class CheckActivity extends AppCompatActivity {
         }
     };
 
-
+    /**
+     * 识别一个九宫格图片
+     */
     private void detectBitmaps() {
 
         mBitmaps = new Bitmap[mCellHeight][mCellWidth];
@@ -185,36 +173,116 @@ public class CheckActivity extends AppCompatActivity {
                 mItemCount++;
                 int xx = x * mCellWidth;
                 int yy = y * mCellHeight;
-                mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 8, yy + mCellHeight / 8,
-                        (mCellWidth / 8) * 6, (mCellHeight / 8) * 7);
+                //if (y==2 && x==2 ) {
+                //    mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 8, yy + mCellHeight / 8,
+                //            (mCellWidth / 8) * 6, (mCellHeight / 8) * 6);
+                //}else if (y==2) {
+                //    mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 8, yy + mCellHeight / 8,
+                //            (mCellWidth / 8) * 7, (mCellHeight / 8) * 6);
+                //} else if (x==2) {
+                //    mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 8, yy + mCellHeight / 8,
+                //            (mCellWidth / 8) * 6, (mCellHeight / 8) * 7);
+                //} else {
+                //    mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 8, yy + mCellHeight / 8,
+                //            (mCellWidth / 8) * 6, (mCellHeight / 8) * 6);
+                //}
+                mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx + mCellWidth / 11, yy + mCellHeight / 11,
+                        (mCellWidth / 11) * 9, (mCellHeight / 11) * 9);
+
+                //mBitmaps[x][y] = Bitmap.createBitmap(mCropBitmap, xx, yy,
+                //        mCellWidth, mCellHeight);
+
                 String result = "";
                 Bitmap bitmap = mBitmaps[x][y];
-                result = detectText(convert2Gray(bitmap)).toLowerCase().trim();
-                if (!mLetterSwitch.toLowerCase().equals(result)) { //如果识别错误
-                    SdCardUtils.saveBitmapToSD(ImageUtil.getBinaryzationBitmap(bitmap), result, mLetterPosition);
+
+                //LinkedList<Bitmap> bitmaps = ImageUtil.getRectangleBitmaps(bitmap);
+                //
+                //Log.d(TAG, "getRectangleBitmaps size " + bitmaps.size());
+                //for (int i = 0; i < bitmaps.size(); i++) {
+                //    SdCardUtils.saveBitmapToSdWithPoint(bitmap, mLetterSwitch.toLowerCase(), x, y, mLetterPosition);
+                //}
+
+                bitmap = ImageUtil.convert2Gray(bitmap); //灰度化
+                bitmap = ImageUtil.getBinaryzationBitmap(bitmap);//二值化
+                result = detectText(bitmap);//识别结果
+                String originalRes =result;
+                String transResult = result.toLowerCase().trim();
+
+                if (!mLetterSwitch.toLowerCase().equals(transResult)) { //如果识别错误
+                    char c = originalRes.charAt(0);
+                    if (c != ' ') {
+                        mErrorList[c]++;
+                    }
+                    SdCardUtils.saveBitmapToSdWithPoint(bitmap, result, x, y, mLetterPosition);
                     drawErrorOnBitmap(mCropBitmap, xx, yy, mCellWidth, mCellHeight);
-                } else if (mLetterSwitch.toLowerCase().equals(result)) {
+                } else if (mLetterSwitch.toLowerCase().equals(transResult)) {
                     mRightCount++;
                 }
                 Log.d("detectBitmaps", "当前选择:" + mLetterSwitch + "\t识别结果:" + result + "\t判定" + (mLetterSwitch.toLowerCase().equals(result)));
+            }
+        }
 
+        scanTimes++;
+        if(scanTimes % 5 == 0) {
+            Log.d(TAG, "scanTimes init"+scanTimes);
+            mErrorList = new int[126];
+            scanTimes=1;
+        }
+
+        if(scanTimes % 4 ==0 && scanTimes > 0) {
+            for (int i = 0; i < mErrorList.length; i++) {
+                if (mErrorList[i] > 0) {
+                    Log.d(TAG, "lettererror: " + (char) (i) + "-" + mErrorList[i] + " times");
+                }
             }
         }
     }
 
+
+    /**
+     * 入口方法，识别一个图片的所有子图，看看其中只要有一张正确，那么就说明填写字符正确
+     *
+     * @param bitmaps 入口方法，识别一个图片的所有子图，看看其中只要有一张正确，那么就说明填写字符正确
+     * @param result  正确结果
+     * @return
+     */
+    private boolean detectBitmaps(LinkedList<Bitmap> bitmaps, String result) {
+        int i = 0;
+        while (i < bitmaps.size()) {
+            Bitmap b = Bitmap.createBitmap(bitmaps.get(i));
+            if (detectText(b).equals(result)) return true;
+            i++;
+        }
+        return false;
+    }
+
+
+    /**
+     * 识别单张图片-核心识别方法
+     *
+     * @param bitmap 输入的图像
+     * @return 识别结果
+     */
     private String detectText(Bitmap bitmap) {
-
-        bitmap = ImageUtil.getBinaryzationBitmap(bitmap); //二值化
+        //bitmap = ImageUtil.getBinaryzationBitmap(bitmap); //二值化
         float[] pb = ImageUtil.getPixelData(bitmap);
-        mInferenceInterface.feed(input_node, pb, input_shape);
-        mInferenceInterface.run(new String[]{output_node});
+        Tf.getInstance().feed(Tf.INPUT_NODE, pb, Tf.INPUT_SHAPE);
+        Tf.getInstance().run(new String[]{Tf.OUTPUT_NODE});
         float[] data = new float[62];
-        mInferenceInterface.fetch(output_node, data);
-
+        Tf.getInstance().fetch(Tf.OUTPUT_NODE, data);
         return DetectUtil.extractText(data);
     }
 
 
+    /**
+     * 画出检测结果出错的地方
+     *
+     * @param bitmap
+     * @param left
+     * @param top
+     * @param width
+     * @param height
+     */
     public void drawErrorOnBitmap(Bitmap bitmap, int left, int top, int width, int height) {
         Canvas canvas = new Canvas(bitmap);
         canvas.drawLine(left, top, left + width, top + height, mPaint);

@@ -23,8 +23,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
     private static final String TAG = "MainActivity";
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
         super.onResume();
         if(!OpenCVLoader.initDebug()){
             Log.d(TAG, "OpenCV not loaded");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_10, this, mLoaderCallback);
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
         } else {
             Log.d(TAG, "OpenCV loaded");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
@@ -99,7 +97,6 @@ public class MainActivity extends AppCompatActivity implements EasyPermissions.P
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS:
                     Log.i(TAG, "OpenCV loaded successfully");
-
                     break;
                 default:
                     super.onManagerConnected(status);

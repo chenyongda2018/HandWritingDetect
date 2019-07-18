@@ -79,7 +79,7 @@ public class SdCardUtils {
      * @param bitmap
      * @return
      */
-    public static String saveBitmapToSD(Bitmap bitmap, String result, int position) {
+    public static void saveBitmapToSD(Bitmap bitmap, String result, int position) {
         UUID id = UUID.randomUUID();
         String fileName = "";
         if (result == null || result.equals("")) {
@@ -89,7 +89,11 @@ public class SdCardUtils {
         }
         File file = new File(Environment.getExternalStorageDirectory() + letterDirs[position],
                 fileName + ".jpg"); //放在每个字母对应的文件夹里
-        return savePhotoToSD(bitmap, null, file.getAbsolutePath());
+        savePhotoToSD(bitmap, null, file.getAbsolutePath());
+    }
+
+    public static void saveBitmapToSdWithPoint(Bitmap bitmap, String result,int pointX, int pointY,int position) {
+        saveBitmapToSD(bitmap,result+"_"+pointX+"_"+pointY ,position );
     }
 
     /**
